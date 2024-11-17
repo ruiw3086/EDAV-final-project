@@ -1,1 +1,14 @@
 # Introduction
+
+The issue of climate change is among the most urgent problems of our day. Severe environmental and societal effects, such as extreme weather events, rising sea levels, and ecosystem disruptions, have been brought on by rising global temperatures and rising concentrations of greenhouse gases, especially carbon dioxide (CO2).
+
+This project aims to investigate the historical correlation between CO2 levels and global temperatures in order to gain a better understanding of how these variables have evolved over time and any possible ramifications. Our research questions are as follows: 
+1. What are the historical patterns of CO2 levels and global temperatures over the last century?
+2. Did notable anomalies or abrupt changes occur during particular times or in particular areas?
+3. Can we pinpoint significant turning points in these trends and how do they correlate?
+
+The potential for this study to clarify the historical dynamics of climate change and offer insightful information to scientists, policymakers, and the general public makes it relevant. By examining publicly accessible NASA and NOAA datasets, we hope to provide an understandable, fact-based account of how the Earth's climate has changed over the past century.
+
+In order to provide insights into the causal dynamics of global warming, this analysis goes beyond simply monitoring past trends to determine the temporal relationship between CO2 emissions and temperature changes.
+
+As climate change mitigation gains more attention worldwide, initiatives such as these can be used as a starting point for creating practical solutions. We hope that by offering a statistical and visual summary of the data, we will spur more research into sustainable practices and emphasize how urgent it is to address climate change.
