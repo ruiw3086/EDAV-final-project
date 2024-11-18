@@ -20,6 +20,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -151,6 +185,8 @@ ul.task-list li input[type="checkbox"] {
   <ul>
   <li><a href="#description" id="toc-description" class="nav-link active" data-scroll-target="#description"><span class="header-section-number">2.1</span> Description</a></li>
   <li><a href="#missing-value-analysis" id="toc-missing-value-analysis" class="nav-link" data-scroll-target="#missing-value-analysis"><span class="header-section-number">2.2</span> Missing value analysis</a></li>
+  <li><a href="#key-observations-from-this-plot" id="toc-key-observations-from-this-plot" class="nav-link" data-scroll-target="#key-observations-from-this-plot"><span class="header-section-number">3</span> Key observations from this plot:</a></li>
+  <li><a href="#key-observations-from-this-plot-1" id="toc-key-observations-from-this-plot-1" class="nav-link" data-scroll-target="#key-observations-from-this-plot-1"><span class="header-section-number">4</span> Key Observations from this plot</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/krishengit/EDAV-final-project/edit/main/data.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/krishengit/EDAV-final-project/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -176,11 +212,130 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<p>This project uses only one dataset that was collected ‘https://www.climatewatchdata.org/’ by Krishen Jagani</p>
 <section id="description" class="level2" data-number="2.1">
 <h2 data-number="2.1" class="anchored" data-anchor-id="description"><span class="header-section-number">2.1</span> Description</h2>
+<p>The dataset was imported in a csv format. The dataset tracks emission of greenhouse gases across different sectors and gases over time, allowing for a detailed analysis of historical trends. The dataset has the following categorical variales and contionous variables:</p>
+<p><strong>Categorical Variables</strong>: Country (<code>ISO</code>, <code>Country</code>), data source, sector, gas type, and unit.</p>
+<p><strong>Continuous Variables</strong>: Yearly emissions values (1990–2021).</p>
+<p><strong>Dimensions</strong>: 8,214 rows x 37 columns.</p>
+<p><strong>Frequency of Updates</strong>: Likely annual.</p>
+<p><strong>Issues</strong>: Missing values for earlier years and specific sectors. Moroever, the data is aggregated at varying levels (like global, country, sector, gases) which may filtering for specific analysis.</p>
 </section>
 <section id="missing-value-analysis" class="level2" data-number="2.2">
 <h2 data-number="2.2" class="anchored" data-anchor-id="missing-value-analysis"><span class="header-section-number">2.2</span> Missing value analysis</h2>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>emissions_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"C:</span><span class="sc">\\</span><span class="st">Users</span><span class="sc">\\</span><span class="st">HP WORLD</span><span class="sc">\\</span><span class="st">Downloads</span><span class="sc">\\</span><span class="st">historical_emissions (1)</span><span class="sc">\\</span><span class="st">historical_emissions.csv"</span>,<span class="at">na=</span><span class="st">"N/A"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">#head(emissions_data)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'dplyr'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:stats':
+
+    filter, lag</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:base':
+
+    intersect, setdiff, setequal, union</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ lubridate 1.9.3     ✔ tibble    3.2.1
+✔ purrr     1.0.2     ✔ tidyr     1.3.1
+✔ readr     2.1.5     </code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">#  missing values per column</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>missing_value_counts <span class="ot">&lt;-</span> <span class="fu">colSums</span>(<span class="fu">is.na</span>(emissions_data))</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>missing_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Variable =</span> <span class="fu">names</span>(missing_value_counts), <span class="at">Missing =</span> missing_value_counts)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Bar plot </span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(missing_df, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(Variable, Missing), <span class="at">y =</span> Missing)) <span class="sc">+</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>) <span class="sc">+</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Count of Missing Values by Variable"</span>,</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Year"</span>,</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Number of Missing Values"</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">16</span>) <span class="sc">+</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="data_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="1056"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="key-observations-from-this-plot" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Key observations from this plot:</h1>
+<ol type="1">
+<li>Variables representing earlier years have higher number of missing values. This could indicate data collection during those times were less consistent or non existent. However, the proportion of missing values is very less. As we can see that year 1990 has the highest amount of missing values(around 250). However, the dataset has 8214 rows, which makes the proportion of missing values small.</li>
+<li>Another trend that we observe, is the decrease in number of missing values with time as recent years have less number of missing values. This might suggest improvements in data reporting and collection over the years.</li>
+<li>The key variables - Country, Gas, Sector and Unit have no missing values.</li>
+</ol>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate missing values for each gas </span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>missing_by_gas <span class="ot">&lt;-</span> emissions_data <span class="sc">|&gt;</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">"X"</span>), <span class="at">names_to =</span> <span class="st">"Year"</span>, <span class="at">values_to =</span> <span class="st">"Value"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Gas, Year) <span class="sc">|&gt;</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">Missing_Count =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(Value)), <span class="at">.groups =</span> <span class="st">"drop"</span>)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co">#  Facets for gases</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(missing_by_gas, <span class="fu">aes</span>(<span class="at">x =</span> Year, <span class="at">y =</span> Missing_Count)) <span class="sc">+</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">fill =</span> <span class="st">"blue"</span>) <span class="sc">+</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> Gas) <span class="sc">+</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Missing Values Faceted by Gas"</span>,</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Year"</span>,</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Number of Missing Values"</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">16</span>) <span class="sc">+</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="data_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="1440"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="key-observations-from-this-plot-1" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Key Observations from this plot</h1>
+<ol type="1">
+<li>Carbon Dioxide (CO2) has the most amount of missing values in year columns. Methane (CH4) and Nitrous Oxide (N2O) have relatively same number of missing values over the years. Whereas, F-Gas has no missing values.</li>
+</ol>
 
 
 </section>

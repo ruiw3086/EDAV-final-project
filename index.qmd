@@ -1,14 +1,30 @@
 # Introduction
 
-The issue of climate change is among the most urgent problems of our day. Severe environmental and societal effects, such as extreme weather events, rising sea levels, and ecosystem disruptions, have been brought on by rising global temperatures and rising concentrations of greenhouse gases, especially carbon dioxide (CO2).
+Climate change is among the most pressing problems today. Environmental and societal effects like extreme weather events, increasing sea levels have been augmented 
+due to increasing proportions of green house gases and eventually global warming. Majorly carbon dioxide (CO2) is the front runner for causing increase in the average
+temperature of the earth.
 
-This project aims to investigate the historical correlation between CO2 levels and global temperatures in order to gain a better understanding of how these variables have evolved over time and any possible ramifications. Our research questions are as follows: 
-1. What are the historical patterns of CO2 levels and global temperatures over the last century?
-2. Did notable anomalies or abrupt changes occur during particular times or in particular areas?
-3. Can we pinpoint significant turning points in these trends and how do they correlate?
+This project aims to study the variations and correlations in the emissions of various greenhouse gases like Carbon Dioxide (CO2), Nitrous Oxide (N2O), Methane (CH4)
+and fluorinated gases (F-gas). Moreover, this study aims to observe the patterns emissions of these gases across different countries across different sectors.Some of 
+the research questions this project aims to answer are as follows:
+1. What are the trends in the emission of greenhouse gases over time ?
 
-The potential for this study to clarify the historical dynamics of climate change and offer insightful information to scientists, policymakers, and the general public makes it relevant. By examining publicly accessible NASA and NOAA datasets, we hope to provide an understandable, fact-based account of how the Earth's climate has changed over the past century.
+2. Which gases contribute the most to the total emissions globally and regionally ?
 
-In order to provide insights into the causal dynamics of global warming, this analysis goes beyond simply monitoring past trends to determine the temporal relationship between CO2 emissions and temperature changes.
+3. Which sectors are responsible for contributing more amount of green house gases and how do these vary across countries?
 
-As climate change mitigation gains more attention worldwide, initiatives such as these can be used as a starting point for creating practical solutions. We hope that by offering a statistical and visual summary of the data, we will spur more research into sustainable practices and emphasize how urgent it is to address climate change.
+4. Which countries are contributing to the maximum amount of green house gases ? 
+
+5. How has the emissions of different gases evolved across the years across different countries and across different sectors ?
+
+
+Understanding the contributions of different gases can guide the government and policymakers in setting regulations for certain sectors and designing new policies.
+Moreover, insights into sector specific emissions can help these policymakers make policies targeted at reducing the emission of greenhouse gases. 
+
+Identifying the emissions across various countries can allow policymakers and researchers to figure out high emission countries, promote equity in climate action, 
+tailor country specific strategies at global summits and meets and many more. Monitoring the trends of emissions of these gases would also give insights about the rate of 
+increase or rate of decrease of emissions over the years, which is in turn crucial for countries to track their progress towards their climate goals. 
+
+To conclude, this project has the potential to provide valuable insights into patterns of emissions of greenhouse gases making the way for data-driven policy making.
+This would allow the researchers and policymakers to design strategies to tackle climate change.
+

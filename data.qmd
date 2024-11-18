@@ -1,5 +1,77 @@
 # Data
+This project uses only one dataset that was collected 'https://www.climatewatchdata.org/' by Krishen Jagani
 
 ## Description
+The dataset was imported in a csv format. The dataset tracks emission of greenhouse gases across different sectors and gases over time, allowing for a detailed analysis
+of historical trends. The dataset has the following categorical variales and contionous variables:
+
+**Categorical Variables**: Country (`ISO`, `Country`), data source, sector, gas type, and unit.
+
+**Continuous Variables**: Yearly emissions values (1990–2021).
+
+**Dimensions**: 8,214 rows x 37 columns.
+
+**Frequency of Updates**: Likely annual.
+
+**Issues**: Missing values for earlier years and specific sectors. Moroever, the data is aggregated at varying levels (like global, country, sector, gases)
+which may filtering for specific analysis.
 
 ## Missing value analysis
+
+
+```{r}
+emissions_data <- read.csv("C:\\Users\\HP WORLD\\Downloads\\historical_emissions (1)\\historical_emissions.csv",na="N/A")
+#head(emissions_data)
+```
+
+```{r,fig.width=11,fig.height=8}
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+
+#  missing values per column
+missing_value_counts <- colSums(is.na(emissions_data))
+missing_df <- data.frame(Variable = names(missing_value_counts), Missing = missing_value_counts)
+
+# Bar plot 
+ggplot(missing_df, aes(x = reorder(Variable, Missing), y = Missing)) +
+  geom_bar(stat = "identity") +
+  labs(
+    title = "Count of Missing Values by Variable",
+    x = "Year",
+    y = "Number of Missing Values"
+  ) +
+  theme_minimal(base_size = 16) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+# Key observations from this plot:
+1. Variables representing earlier years have higher number of missing values. This could indicate data collection during those times were less consistent
+or non existent. However, the proportion of missing values is very less. As we can see that year 1990 has the highest amount of missing values(around 250). However, the 
+dataset has 8214 rows, which makes the proportion of missing values small. 
+2. Another trend that we observe, is the decrease in number of missing values with time as recent years have less number of missing values. This might suggest improvements
+in data reporting and collection over the years.
+3. The key variables - Country, Gas, Sector and Unit have no missing values.
+
+```{r,fig.width=15}
+# Calculate missing values for each gas 
+missing_by_gas <- emissions_data |>
+  pivot_longer(cols = starts_with("X"), names_to = "Year", values_to = "Value") |>
+  group_by(Gas, Year) |>
+  summarise(Missing_Count = sum(is.na(Value)), .groups = "drop")
+
+#  Facets for gases
+ggplot(missing_by_gas, aes(x = Year, y = Missing_Count)) +
+  geom_col(fill = "blue") +
+  facet_wrap(~ Gas) +
+  labs(
+    title = "Missing Values Faceted by Gas",
+    x = "Year",
+    y = "Number of Missing Values"
+  ) +
+  theme_minimal(base_size = 16) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+# Key Observations from this plot
+1. Carbon Dioxide (CO2) has the most amount of missing values in year columns. Methane (CH4) and Nitrous Oxide (N2O) have
+relatively same number of missing values over the years. Whereas, F-Gas has no missing values.
