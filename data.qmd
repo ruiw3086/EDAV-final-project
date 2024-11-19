@@ -1,5 +1,5 @@
 # Data
-This project uses only one dataset that was collected 'https://www.climatewatchdata.org/' by Krishen Jagani
+This project uses only one dataset that was collected 'https://www.climatewatchdata.org/' by Krishen Jagani and Rui Wang.
 
 ## Description
 The dataset was imported in a csv format. The dataset tracks emission of greenhouse gases across different sectors and gases over time, allowing for a detailed analysis
