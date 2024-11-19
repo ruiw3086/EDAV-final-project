@@ -1,5 +1,5 @@
 # Data
-<<<<<<< HEAD
+
 This project uses only one dataset that was collected 'https://www.climatewatchdata.org/' by Krishen Jagani and Rui Wang.
 
 
