@@ -5,7 +5,7 @@ due to increasing proportions of green house gases and eventually global warming
 temperature of the earth.
 
 This project aims to study the variations and correlations in the emissions of various greenhouse gases like Carbon Dioxide (CO2), Nitrous Oxide (N2O), Methane (CH4)
-and fluorinated gases (F-gas) over the past 3 decades(1990 - 2020). Moreover, this study aims to observe the patterns emissions of these gases across different countries across different sectors.Some of 
+and fluorinated gases (F-gas) over the past 3 decades (1990 - 2020). Moreover, this study aims to observe the patterns emissions of these gases across different countries across different sectors.Some of 
 the research questions this project aims to answer are as follows:
 
 1. What are the trends in the emission of greenhouse gases over time ?
