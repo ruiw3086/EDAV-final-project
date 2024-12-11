@@ -1,1 +1,372 @@
 # Results
+
+```{r}
+library(readr)
+library(tidyverse)
+```
+
+```{r}
+data <- read.csv("Datasets/historical_emissions.csv", na.strings = c("NA", "N/A"))
+
+tail(data)
+dim(data)
+```
+
+```{r}
+cleaned_data <- na.omit(data)
+dim(cleaned_data)
+str(cleaned_data)
+data_long <- cleaned_data |>
+  pivot_longer(
+    cols = starts_with("X"),    # Select all columns starting with "X" (years)
+    names_to = "Year",          # New column for years
+    values_to = "Emissions"     # New column for emission values
+  ) |>
+  mutate(Year = as.numeric(sub("X", "", Year)))
+data_long
+```
+#should we drop data source column?
+
+```{r}
+# Filter for global emissions across all gases for "Total including LUCF"
+global_emissions_gases <- subset(data_long, Country == "World" & Sector == "Total including LUCF")
+
+# Plot emissions for all gases with different line colors
+ggplot(global_emissions_gases, aes(x = Year, y = Emissions, color = Gas)) +
+  geom_line(size = 1) +
+  scale_y_continuous(trans = 'log10', labels = scales::comma) +
+  labs(title = "Global Emissions Over Time by Gas",
+       x = "Year",
+       y = "Emissions (MtCO₂e)(on log scale)",
+       color = "Gas") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+
+global_emissions_gases <- subset(data_long, Country == "World" & Sector == "Total including LUCF")
+```
+
+```{r}
+# Plot emissions for all gases with different line colors
+ggplot(global_emissions_gases, aes(x = Year, y = Emissions, color = Gas)) +
+  geom_line(size = 1) +
+  labs(title = "Global Emissions Over Time by Gas",
+       x = "Year",
+       y = "Emissions (MtCO₂e)(on log scale)",
+       color = "Gas") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+```{r}
+data_2021 <- subset(data_long, Year == 2021 & Gas == "CO2" & Sector == "Total including LUCF")
+top_10 <- data_2021[order(-data_2021$Emissions), ][2:11, ]
+
+ggplot(top_10, aes(x = reorder(Country, Emissions), y = Emissions)) +
+  geom_bar(stat = "identity", fill = "cornflowerblue") +
+  scale_y_continuous(breaks = seq(0, max(top_10$Emissions), by = 1000), labels = scales::comma) +
+  labs(title = "Top 10 Emitting Countries in 2021",
+       x = "Country",
+       y = "Emissions (MtCO₂e)") +
+  theme_minimal() +
+  coord_flip()
+```
+
+```{r}
+top_countries <- top_10$Country
+sector_data <- subset(data_long, Year == 2021 & Country %in% top_countries & Gas == "CO2")
+
+ggplot(sector_data, aes(x = Country, y = Emissions, fill = Sector)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Sectoral Contributions to Emissions (2021)",
+       x = "Country",
+       y = "Emissions (MtCO₂e)") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+## Changes made: change Total including LUCF Total excluding LUCF to LUCF and Total excluding LUCF, wondering if that makes sense. Should we apply this to the whole dataset? Also, should we change the color scale, to make each sector more distinct, as some colors stay together has small difference. Besides, there seem to be negative values(below 0), wondering why this is happenning.
+```{r}
+# Calculate LUCF emissions
+sector_data <- subset(data_long, Year == 2021 & Country %in% top_countries & Gas == "CO2")
+
+# Create a new LUCF column by calculating the difference
+sector_data_lucf <- sector_data |>
+  filter(Sector %in% c("Total including LUCF", "Total excluding LUCF")) |>
+  spread(Sector, Emissions) |>
+  mutate(LUCF = `Total including LUCF` - `Total excluding LUCF`) |>
+  gather(key = "Sector", value = "Emissions", c("LUCF", "Total excluding LUCF"))
+
+# Combine with other sectors
+sector_data_combined <- sector_data |>
+  filter(!Sector %in% c("Total including LUCF", "Total excluding LUCF")) |>
+  bind_rows(sector_data_lucf)
+
+# Plot the updated data
+ggplot(sector_data_combined, aes(x = Country, y = Emissions, fill = Sector)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Sectoral Contributions to Emissions (2021)",
+       x = "Country",
+       y = "Emissions (MtCO₂e)") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  scale_color_brewer(palette = "PuBu") 
+```
+
+
+
+```{r}
+facet_data <- subset(data_long, Country %in% c("China", "United States", "India", "European Union (27)") & Sector == "Total including LUCF")
+
+ggplot(facet_data, aes(x = Year, y = Emissions, color = Gas)) +
+  geom_line(size = 1) +
+  facet_wrap(~ Country, scales = "free_y") +
+  labs(title = "Regional Emissions Trends by Gas",
+       x = "Year",
+       y = "Emissions (MtCO₂e)") +
+  theme_minimal()
+```
+
+```{r}
+facet_data <- subset(
+  data_long,
+  Country %in% c(
+    "China", "United States", "India", "European Union (27)",
+    "Russia", "Japan", "Brazil", "Indonesia", "Iran", "Germany"  # Top 10 emitters
+  ) &
+    Sector %in% c(
+      "Energy", "Agriculture", "Transport",
+      "Electricity/Heat", "Waste", "Industrial Processes"
+    ) &  # Key sectors
+    Gas %in% c("CO2", "CH4", "N2O", "F-Gas")  # Major greenhouse gases
+)
+```
+
+
+```{r}
+gas_sector_data <- subset(
+  data_long,
+  Country == "World" & Sector %in% c("Energy", "Agriculture", "Transport", "Electricity/Heat") & Gas %in% c("CO2", "CH4", "N2O", "F-Gas")
+)
+
+ggplot(gas_sector_data, aes(x = Year, y = Emissions, color = Gas)) +
+  geom_line(size = 1) +
+  facet_wrap(~ Sector, scales = "free_y") +
+  labs(
+    title = "Gas Contributions by Sector Over Time (1990–2021)",
+    x = "Year",
+    y = "Emissions (MtCO₂e)",
+    color = "Gas"
+  ) +
+  theme_minimal() +
+  theme(
+    strip.text = element_text(size = 10, face = "bold"),
+    plot.title = element_text(size = 16, face = "bold"),
+    axis.text = element_text(size = 8),
+    legend.position = "bottom"
+  )
+```
+
+# Should we free scale in this part?
+```{r}
+# Filter data for selected countries and sectors across gases
+gas_focused <- subset(
+  data_long,
+  Country %in% c("China", "United States", "India", "European Union (27)", "Russia") &
+    Sector %in% c("Energy", "Agriculture", "Transport", "Electricity/Heat") &
+    Gas %in% c("CO2", "CH4", "N2O", "F-Gas")
+)
+
+# Faceted grid plot
+ggplot(gas_focused, aes(x = Year, y = Emissions, color = Country)) +
+  geom_line(size = 1) +
+  facet_grid(Sector ~ Gas, scales = "free_y") +
+  labs(
+    title = "Sectoral Emissions by Gas and Country (1990–2021)",
+    x = "Year",
+    y = "Emissions (MtCO₂e)",
+    color = "Country"
+  ) +
+  theme_minimal() +
+  theme(
+    strip.text = element_text(size = 10, face = "bold"),
+    plot.title = element_text(size = 16, face = "bold"),
+    legend.position = "bottom"
+  )
+
+```
+
+
+```{r}
+sector_country_data <- subset(
+  data_long,
+  Year == 2021 &
+    Country %in% c(
+      "China", "United States", "India", "European Union (27)",
+      "Russia", "Japan", "Brazil", "Germany"
+    ) &
+    Gas == "CO2" &
+    !Sector %in% c("Total including LUCF", "Total excluding LUCF")  # Exclude these sectors
+)
+
+ggplot(sector_country_data, aes(x = Country, y = Sector, fill = Emissions)) +
+  geom_tile() +
+  scale_fill_gradient(low = "lightblue", high = "darkblue") +
+  labs(
+    title = "Sectoral Emissions Intensity Across Countries (2021)",
+    x = "Country",
+    y = "Sector",
+    fill = "Emissions (MtCO₂e)"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "right"
+  )
+```
+
+
+
+```{r}
+# Filter data for sector-by-gas analysis
+sector_gas_data <- subset(
+  data_long,
+  Year == 2021 &
+    !Sector %in% c("Total including LUCF", "Total excluding LUCF") &
+    Gas %in% c("CO2", "CH4", "N2O", "F-Gas")
+)
+```
+
+```{r}
+# Summarize data to get total emissions by sector and gas
+sector_gas_summary <- sector_gas_data |>
+  group_by(Sector, Gas) |>
+  summarise(Total_Emissions = sum(Emissions, na.rm = TRUE)) |>
+  ungroup()
+
+# Create stacked bar chart
+ggplot(sector_gas_summary, aes(x = reorder(Sector, -Total_Emissions), y = Total_Emissions, fill = Gas)) +
+  geom_bar(stat = "identity") +
+  labs(
+    title = "Sectoral Emissions by Gas (2021)",
+    x = "Sector",
+    y = "Total Emissions (MtCO₂e)",
+    fill = "Gas"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "bottom"
+  )
+```
+
+
+```{r}
+library(ggplot2)
+
+# Filter data for relevant countries, sectors, and gases
+grouped_bar_data <- subset(
+  data_long,
+  Year == 2021 &
+    Country %in% c("China", "United States", "India", "European Union (27)", "Russia") &
+    !Sector %in% c("Total including LUCF", "Total excluding LUCF") &
+    Gas %in% c("CO2", "CH4", "N2O","F-Gas")
+)
+
+# Create grouped bar chart
+ggplot(grouped_bar_data, aes(x = Sector, y = Emissions, fill = Gas)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  facet_wrap(~ Country, scales = "free_y") +
+  labs(
+    title = "Sectoral Emissions by Gas Faceted by Country (2021)",
+    x = "Sector",
+    y = "Emissions (MtCO₂e)",
+    fill = "Gas"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "bottom"
+  )
+```
+
+```{r}
+library(ggplot2)
+
+# Filter data for relevant countries, sectors, and gases
+grouped_bar_data <- subset(
+  data_long,
+  Year == 2021 &
+    Country %in% c("China", "United States", "India", "European Union (27)", "Russia") &
+    !Sector %in% c("Total including LUCF", "Total excluding LUCF") &
+    Gas %in% c("CO2", "CH4", "N2O")
+)
+
+# Create grouped bar chart
+ggplot(grouped_bar_data, aes(x = Sector, y = Emissions, fill = Gas)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_y_continuous(trans = "log10", labels = scales::comma) +
+  facet_wrap(~ Country, scales = "free_y") +
+  labs(
+    title = "Sectoral Emissions by Gas Faceted by Country (2021)",
+    x = "Sector",
+    y = "Emissions (MtCO₂e)",
+    fill = "Gas"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "bottom"
+  )
+```
+
+# Additional Graph
+```{r}
+library(dplyr)
+library(ggplot2)
+
+# Filter CO2 emissions data
+co2_data <- data_long |>
+  filter(Gas == "CO2", Sector == "Total including LUCF")
+
+# Calculate global total emissions for each year
+global_emissions <- co2_data |>
+  group_by(Year) |>
+  summarise(Total_Emissions = sum(Emissions, na.rm = TRUE))
+
+# Calculate cumulative emissions per country and identify top 5 emitters
+top_5_countries <- co2_data |>
+  group_by(Country) |>
+  summarise(Cumulative_Emissions = sum(Emissions, na.rm = TRUE)) |>
+  arrange(desc(Cumulative_Emissions)) |>
+  slice(2:6) |>
+  pull(Country)
+
+# Filter for top 5 countries and calculate percentage contribution
+top_5_contributions <- co2_data |>
+  filter(Country %in% top_5_countries) |>
+  left_join(global_emissions, by = "Year") |>
+  mutate(Percentage_Contribution = Emissions / Total_Emissions * 100)
+
+# Plot the line chart
+ggplot(top_5_contributions, aes(x = Year, y = Percentage_Contribution, color = Country)) +
+  geom_line(size = 1) +
+  labs(
+    title = "Contribution of Top 5 Countries to CO2 Emissions (1990–2021)",
+    x = "Year",
+    y = "Percentage Contribution",
+    color = "Country"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 14, face = "bold"),
+    axis.text = element_text(size = 10),
+    legend.position = "right"
+  )
+
+```
+
+
+

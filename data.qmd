@@ -22,8 +22,8 @@ which may filtering for specific analysis.
 
 
 ```{r}
-emissions_data <- read.csv("C:\\Users\\HP WORLD\\Downloads\\historical_emissions (1)\\historical_emissions.csv",na="N/A")
-#head(emissions_data)
+emissions_data <- read.csv("Datasets/historical_emissions.csv", na = "N/A") # changed to relative path, which allow both of us(or others to load the data in the dataset folder)
+head(emissions_data)
 ```
 
 ```{r,fig.width=11,fig.height=8}
@@ -47,6 +47,26 @@ ggplot(missing_df, aes(x = reorder(Variable, Missing), y = Missing)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 ```
+```{r,fig.width=11,fig.height=8}
+
+#  missing values per column
+missing_value_counts <- colSums(is.na(emissions_data))
+missing_df <- data.frame(Variable = names(missing_value_counts), Missing = missing_value_counts)
+
+# Bar plot 
+ggplot(missing_df, aes(x = Variable, y = Missing)) +
+  geom_bar(stat = "identity") +
+  labs(
+    title = "Count of Missing Values by Variable",
+    x = "Year",
+    y = "Number of Missing Values"
+  ) +
+  theme_minimal(base_size = 16) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# I am wondering should we order the column in time? I think it might be better to find a pattern or something. Also, should we exclude the columns with no missing value?
+```
+
 # Key observations from this plot:
 1. Variables representing earlier years have higher number of missing values. This could indicate data collection during those times were less consistent
 or non existent. However, the proportion of missing values is very less. As we can see that year 1990 has the highest amount of missing values(around 250). However, the 
