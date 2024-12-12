@@ -114,7 +114,7 @@ ggplot(top_10, aes(x = reorder(Country, Emissions), y = Emissions)) +
        y = "Emissions (MtCO₂e)") +
   coord_flip()
 ```
-China and United States dominate the list of top emitters with India and Russia also making significant contributions.
+China and United States dominate the list of top emitters with India and Russia also making significant contributions. Furthermore, it's worth noting that China contributes most for all the 4 green gases emission in 2021.
 
 3.Next we deep diver into the sector wise contributions of emissions among the top 10 countries emitting CO2
 ```{r,fig.width=15}
