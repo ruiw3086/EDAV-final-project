@@ -64,7 +64,7 @@ ggplot(missing_df, aes(x = Variable, y = Missing)) +
   theme_minimal(base_size = 16) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-# I am wondering should we order the column in time? I think it might be better to find a pattern or something. Also, should we exclude the columns with no missing value?
+
 ```
 
 # Key observations from this plot:

@@ -8,84 +8,118 @@ library(tidyverse)
 ```{r}
 data <- read.csv("Datasets/historical_emissions.csv", na.strings = c("NA", "N/A"))
 
-tail(data)
-dim(data)
-```
 
+dim(data)
+#head(data)
+```
+We begin our analysis by cleaning the data first. This includes removing all the rows with missing values and dropping Data.source column.
+Further, we also prepare a long format of the data well before, as this would be used in few graphs coming forward.
 ```{r}
 cleaned_data <- na.omit(data)
+cleaned_data <- cleaned_data[,!names(cleaned_data) %in% c("Data.source")]
 dim(cleaned_data)
-str(cleaned_data)
+#str(cleaned_data)
 data_long <- cleaned_data |>
   pivot_longer(
-    cols = starts_with("X"),    # Select all columns starting with "X" (years)
-    names_to = "Year",          # New column for years
-    values_to = "Emissions"     # New column for emission values
+    cols = starts_with("X"),    
+    names_to = "Year",          
+    values_to = "Emissions"     
   ) |>
   mutate(Year = as.numeric(sub("X", "", Year)))
-data_long
+dim(data_long)
 ```
-#should we drop data source column?
-
-```{r}
-# Filter for global emissions across all gases for "Total including LUCF"
+1.We first begin by creating a line plot to observe the emission trends of different gases over the years.
+```{r,fig.width=15}
 global_emissions_gases <- subset(data_long, Country == "World" & Sector == "Total including LUCF")
-
-# Plot emissions for all gases with different line colors
 ggplot(global_emissions_gases, aes(x = Year, y = Emissions, color = Gas)) +
   geom_line(size = 1) +
+  geom_point(size = 2)+
+  scale_x_continuous(breaks = seq(1990, 2021, by = 1)) +
+  labs(title = "Global Emissions Over Time by Gas",
+       x = "Year",
+       y = "Emissions (MtCO₂e)",
+       color = "Gas") +
+  theme(legend.position = "bottom")
+```
+As we see observe that only CO2 is showing a significant trend, we will apply a log scale to see if there exist any significant trends in the emission of other gases
+
+```{r,fig.width=15}
+
+ggplot(global_emissions_gases, aes(x = Year, y = Emissions, color = Gas)) +
+  geom_line(size = 1) +
+  geom_point(size = 2)+
+  scale_x_continuous(breaks = seq(1990, 2021, by = 1)) +
   scale_y_continuous(trans = 'log10', labels = scales::comma) +
   labs(title = "Global Emissions Over Time by Gas",
        x = "Year",
        y = "Emissions (MtCO₂e)(on log scale)",
        color = "Gas") +
-  theme_minimal() +
   theme(legend.position = "bottom")
 
-global_emissions_gases <- subset(data_long, Country == "World" & Sector == "Total including LUCF")
-```
 
-```{r}
-# Plot emissions for all gases with different line colors
-ggplot(global_emissions_gases, aes(x = Year, y = Emissions, color = Gas)) +
-  geom_line(size = 1) +
-  labs(title = "Global Emissions Over Time by Gas",
-       x = "Year",
-       y = "Emissions (MtCO₂e)(on log scale)",
-       color = "Gas") +
-  theme_minimal() +
-  theme(legend.position = "bottom")
 ```
+After applying the log scale, we discover another piece of information. Along with Co2, F-gas emissions have also increased significantly recently compared to the 
+earlier years.
 
+
+
+2. Next, we attempt to get an insight into the countries that are responsible for most amount of emissions. We filter our selection by top 10 countries.
 ```{r}
 data_2021 <- subset(data_long, Year == 2021 & Gas == "CO2" & Sector == "Total including LUCF")
 top_10 <- data_2021[order(-data_2021$Emissions), ][2:11, ]
 
 ggplot(top_10, aes(x = reorder(Country, Emissions), y = Emissions)) +
-  geom_bar(stat = "identity", fill = "cornflowerblue") +
+  geom_bar(stat = "identity", fill = "darkgreen") +
   scale_y_continuous(breaks = seq(0, max(top_10$Emissions), by = 1000), labels = scales::comma) +
-  labs(title = "Top 10 Emitting Countries in 2021",
+  labs(title = "Top 10 CO2 Emitting Countries in 2021",
        x = "Country",
        y = "Emissions (MtCO₂e)") +
-  theme_minimal() +
+  coord_flip()
+```
+```{r}
+data_2021 <- subset(data_long, Year == 2021 & Gas == "CH4" & Sector == "Total including LUCF")
+top_10 <- data_2021[order(-data_2021$Emissions), ][2:11, ]
+
+ggplot(top_10, aes(x = reorder(Country, Emissions), y = Emissions)) +
+  geom_bar(stat = "identity", fill = "pink") +
+  scale_y_continuous(breaks = seq(0, max(top_10$Emissions), by = 1000), labels = scales::comma) +
+  labs(title = "Top 10 CH4 Emitting Countries in 2021",
+       x = "Country",
+       y = "Emissions (MtCO₂e)") +
   coord_flip()
 ```
 
 ```{r}
-top_countries <- top_10$Country
-sector_data <- subset(data_long, Year == 2021 & Country %in% top_countries & Gas == "CO2")
+data_2021 <- subset(data_long, Year == 2021 & Gas == "F-Gas" & Sector == "Total including LUCF")
+top_10 <- data_2021[order(-data_2021$Emissions), ][2:11, ]
 
-ggplot(sector_data, aes(x = Country, y = Emissions, fill = Sector)) +
-  geom_bar(stat = "identity") +
-  labs(title = "Sectoral Contributions to Emissions (2021)",
+ggplot(top_10, aes(x = reorder(Country, Emissions), y = Emissions)) +
+  geom_bar(stat = "identity", fill = "lightblue") +
+  scale_y_continuous(breaks = seq(0, max(top_10$Emissions), by = 1000), labels = scales::comma) +
+  labs(title = "Top 10 F-Gas Emitting Countries in 2021",
        x = "Country",
        y = "Emissions (MtCO₂e)") +
-  theme_minimal() +
-  theme(legend.position = "bottom")
+  coord_flip()
 ```
-## Changes made: change Total including LUCF Total excluding LUCF to LUCF and Total excluding LUCF, wondering if that makes sense. Should we apply this to the whole dataset? Also, should we change the color scale, to make each sector more distinct, as some colors stay together has small difference. Besides, there seem to be negative values(below 0), wondering why this is happenning.
+
 ```{r}
+data_2021 <- subset(data_long, Year == 2021 & Gas == "N2O" & Sector == "Total including LUCF")
+top_10 <- data_2021[order(-data_2021$Emissions), ][2:11, ]
+
+ggplot(top_10, aes(x = reorder(Country, Emissions), y = Emissions)) +
+  geom_bar(stat = "identity", fill = "purple") +
+  scale_y_continuous(breaks = seq(0, max(top_10$Emissions), by = 1000), labels = scales::comma) +
+  labs(title = "Top 10 N2O Emitting Countries in 2021",
+       x = "Country",
+       y = "Emissions (MtCO₂e)") +
+  coord_flip()
+```
+China and United States dominate the list of top emitters with India and Russia also making significant contributions.
+
+3.Next we deep diver into the sector wise contributions of emissions among the top 10 countries emitting CO2
+```{r,fig.width=15}
 # Calculate LUCF emissions
+top_countries <- top_10$Country
 sector_data <- subset(data_long, Year == 2021 & Country %in% top_countries & Gas == "CO2")
 
 # Create a new LUCF column by calculating the difference
@@ -103,18 +137,33 @@ sector_data_combined <- sector_data |>
 # Plot the updated data
 ggplot(sector_data_combined, aes(x = Country, y = Emissions, fill = Sector)) +
   geom_bar(stat = "identity") +
+  scale_fill_manual(values = c(
+    "Building" = "#E69F00",
+    "Bunker Fuels" = "#56B4E9",
+    "Electricity/Heat" = "#009E73",
+    "Energy" = "#F0E442",
+    "Fugitive Emissions" = "#0072B2",
+    "Industrial Processes" = "#D55E00",
+    "Land-Use Change and Forestry" = "#CC79A7",
+    "Manufacturing/Construction" = "#999999",
+    "Other Fuel Combustion" = "#B2DF8A",
+    "Total excluding LUCF" = "#33A02C",
+    "Total including LUCF" = "#FB9A99",
+    "Transportation" = "#1B9E77"
+  )) +
   labs(title = "Sectoral Contributions to Emissions (2021)",
        x = "Country",
        y = "Emissions (MtCO₂e)") +
-  theme_minimal() +
-  theme(legend.position = "bottom") +
-  scale_color_brewer(palette = "PuBu") 
+  theme(legend.position = "right")
 ```
+We can infer that for most of the countries in 2021, sectors including Energy and Electricity and heat are the top sectors that emit Co2.
+Another, important observation to note is the bars below 0, that is Land Use Change and Forestry denotes that this sector acts as sink of Co2 rather than
+source and thus, the negative value.
 
 
-
+4. Next we examine the trends of emissions by specific regions. 
 ```{r}
-facet_data <- subset(data_long, Country %in% c("China", "United States", "India", "European Union (27)") & Sector == "Total including LUCF")
+facet_data <- subset(data_long, Country %in% c("China", "United States", "India", "European Union (27)","Russia") & Sector == "Total including LUCF")
 
 ggplot(facet_data, aes(x = Year, y = Emissions, color = Gas)) +
   geom_line(size = 1) +
@@ -124,27 +173,30 @@ ggplot(facet_data, aes(x = Year, y = Emissions, color = Gas)) +
        y = "Emissions (MtCO₂e)") +
   theme_minimal()
 ```
+We observe that China , United States and India are the largest emitters of Co2 in recent years. Historically, United States , China and European Union have
+been the highest emitters of CO2. Moreover, EU and United States have shown some decline in emissions which is a good indication.  F-Gas and N2O are relatively small
+for all the regions.
 
 ```{r}
 facet_data <- subset(
   data_long,
   Country %in% c(
     "China", "United States", "India", "European Union (27)",
-    "Russia", "Japan", "Brazil", "Indonesia", "Iran", "Germany"  # Top 10 emitters
+    "Russia", "Japan", "Brazil", "Indonesia", "Iran", "Germany" 
   ) &
     Sector %in% c(
       "Energy", "Agriculture", "Transport",
       "Electricity/Heat", "Waste", "Industrial Processes"
-    ) &  # Key sectors
-    Gas %in% c("CO2", "CH4", "N2O", "F-Gas")  # Major greenhouse gases
+    ) &  
+    Gas %in% c("CO2", "CH4", "N2O", "F-Gas")  
 )
 ```
 
-
+5. For this plot we analyze the trend in the emissions of the gases in the main sectors over the years.
 ```{r}
 gas_sector_data <- subset(
   data_long,
-  Country == "World" & Sector %in% c("Energy", "Agriculture", "Transport", "Electricity/Heat") & Gas %in% c("CO2", "CH4", "N2O", "F-Gas")
+  Country == "World" & Sector %in% c("Energy", "Agriculture", "Electricity/Heat") & Gas %in% c("CO2", "CH4", "N2O", "F-Gas")
 )
 
 ggplot(gas_sector_data, aes(x = Year, y = Emissions, color = Gas)) +
@@ -158,24 +210,27 @@ ggplot(gas_sector_data, aes(x = Year, y = Emissions, color = Gas)) +
   ) +
   theme_minimal() +
   theme(
-    strip.text = element_text(size = 10, face = "bold"),
-    plot.title = element_text(size = 16, face = "bold"),
-    axis.text = element_text(size = 8),
-    legend.position = "bottom"
+    strip.text = element_text(size = 12, face = "bold"),
+    plot.title = element_text(size = 15, face = "bold"),
+    axis.text = element_text(size = 9),
+    legend.position = "right"
   )
 ```
+An interesting information that we get from this plot is that the agriculture sector is mainly responsible for emitting CH4 and and N2O. Whereas, the major 
+contributors of CO2 have been Electricity/Heat and Energy Sectors. Moreover, over the years, the emissions of these gases have increased. Understanding these 
+trends in these sectors can help policy makers develop effective measures to control emissions and adopt sustainable practices.
 
-# Should we free scale in this part?
-```{r}
-# Filter data for selected countries and sectors across gases
+6. In this plot we analyze the trends of emission of different gases in different countries in different sectors.
+```{r,fig.width=15,fig.height=10}
+
 gas_focused <- subset(
   data_long,
   Country %in% c("China", "United States", "India", "European Union (27)", "Russia") &
     Sector %in% c("Energy", "Agriculture", "Transport", "Electricity/Heat") &
-    Gas %in% c("CO2", "CH4", "N2O", "F-Gas")
+    Gas %in% c("CO2", "CH4", "N2O")
 )
 
-# Faceted grid plot
+
 ggplot(gas_focused, aes(x = Year, y = Emissions, color = Country)) +
   geom_line(size = 1) +
   facet_grid(Sector ~ Gas, scales = "free_y") +
@@ -193,9 +248,13 @@ ggplot(gas_focused, aes(x = Year, y = Emissions, color = Country)) +
   )
 
 ```
+China and United States are the primary emitters of CO2 mainly in the Energy and Electricity/ Heat Sectors. Further, The European Union suggests a stable
+trend in the emission of CO2, with sector agriculture showing a downward trend in the emission of CH4 and N2O. Russia also displays a similar trend India 
+leads the emission of CH4 particularly in the agriculture sector. This can be attributed to the large number of agricultural activities carried out in India.
+United States also displays a stable trend in agriculture sector and slight downward trend in the Electricity and Energy sector.
 
-
-```{r}
+7. Sectoral Emissions across countries in 2021 or CO2
+```{r,fig.width=10,fig.height=5}
 sector_country_data <- subset(
   data_long,
   Year == 2021 &
@@ -211,7 +270,7 @@ ggplot(sector_country_data, aes(x = Country, y = Sector, fill = Emissions)) +
   geom_tile() +
   scale_fill_gradient(low = "lightblue", high = "darkblue") +
   labs(
-    title = "Sectoral Emissions Intensity Across Countries (2021)",
+    title = "Sectoral Emissions Across Countries (2021)",
     x = "Country",
     y = "Sector",
     fill = "Emissions (MtCO₂e)"
@@ -223,11 +282,13 @@ ggplot(sector_country_data, aes(x = Country, y = Sector, fill = Emissions)) +
     legend.position = "right"
   )
 ```
+This plot informs us about the emissions of each country with respect to a particular sector. This also tells us how active that country would be in that
+sector. As we observed from the previous graphs, Energy and Electricity/Heat are the top emitters. Couple of countries have high amount of emission in the
+transportation and manufacturing/construction. 
 
-
-
+8. Here we analyze the sectoral emissions by gas which a plot between two categorical varibles and thus we use a stacked bar chart.
 ```{r}
-# Filter data for sector-by-gas analysis
+# Filter 
 sector_gas_data <- subset(
   data_long,
   Year == 2021 &
@@ -237,13 +298,13 @@ sector_gas_data <- subset(
 ```
 
 ```{r}
-# Summarize data to get total emissions by sector and gas
+
 sector_gas_summary <- sector_gas_data |>
   group_by(Sector, Gas) |>
   summarise(Total_Emissions = sum(Emissions, na.rm = TRUE)) |>
   ungroup()
 
-# Create stacked bar chart
+
 ggplot(sector_gas_summary, aes(x = reorder(Sector, -Total_Emissions), y = Total_Emissions, fill = Gas)) +
   geom_bar(stat = "identity") +
   labs(
@@ -256,73 +317,14 @@ ggplot(sector_gas_summary, aes(x = reorder(Sector, -Total_Emissions), y = Total_
   theme(
     plot.title = element_text(size = 16, face = "bold"),
     axis.text.x = element_text(angle = 45, hjust = 1),
-    legend.position = "bottom"
+    legend.position = "right"
   )
 ```
+Here we observe that Energy, Electricity/Heat, Transportation, Manufacturing/Construction are the major contributors of CO2 emissions. Sectors like Agriculture,
+Fugitive emissions and waste contribute to the emissions of CH4. Further Agriculture and Industrial sectors are responsible for the emissions of N2O gas. And Industrial
+processes are the major contributors of F-Gas.
 
-
-```{r}
-library(ggplot2)
-
-# Filter data for relevant countries, sectors, and gases
-grouped_bar_data <- subset(
-  data_long,
-  Year == 2021 &
-    Country %in% c("China", "United States", "India", "European Union (27)", "Russia") &
-    !Sector %in% c("Total including LUCF", "Total excluding LUCF") &
-    Gas %in% c("CO2", "CH4", "N2O","F-Gas")
-)
-
-# Create grouped bar chart
-ggplot(grouped_bar_data, aes(x = Sector, y = Emissions, fill = Gas)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  facet_wrap(~ Country, scales = "free_y") +
-  labs(
-    title = "Sectoral Emissions by Gas Faceted by Country (2021)",
-    x = "Sector",
-    y = "Emissions (MtCO₂e)",
-    fill = "Gas"
-  ) +
-  theme_minimal() +
-  theme(
-    plot.title = element_text(size = 16, face = "bold"),
-    axis.text.x = element_text(angle = 45, hjust = 1),
-    legend.position = "bottom"
-  )
-```
-
-```{r}
-library(ggplot2)
-
-# Filter data for relevant countries, sectors, and gases
-grouped_bar_data <- subset(
-  data_long,
-  Year == 2021 &
-    Country %in% c("China", "United States", "India", "European Union (27)", "Russia") &
-    !Sector %in% c("Total including LUCF", "Total excluding LUCF") &
-    Gas %in% c("CO2", "CH4", "N2O")
-)
-
-# Create grouped bar chart
-ggplot(grouped_bar_data, aes(x = Sector, y = Emissions, fill = Gas)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  scale_y_continuous(trans = "log10", labels = scales::comma) +
-  facet_wrap(~ Country, scales = "free_y") +
-  labs(
-    title = "Sectoral Emissions by Gas Faceted by Country (2021)",
-    x = "Sector",
-    y = "Emissions (MtCO₂e)",
-    fill = "Gas"
-  ) +
-  theme_minimal() +
-  theme(
-    plot.title = element_text(size = 16, face = "bold"),
-    axis.text.x = element_text(angle = 45, hjust = 1),
-    legend.position = "bottom"
-  )
-```
-
-# Additional Graph
+9. In this plot we finally analyze the percentage contribution of the top 5 CO2 emitting countries over the years.
 ```{r}
 library(dplyr)
 library(ggplot2)
@@ -367,6 +369,8 @@ ggplot(top_5_contributions, aes(x = Year, y = Percentage_Contribution, color = C
   )
 
 ```
+We observe that the percentage contribution of China has increased significantly over the years. The same trend is observed for India but the rise is gradual and is 
+not as steep as China. Whereas, for the countries in European Union, United States and Brazil, the contribution of CO2 has fallen over the years.
 
 ```{r}
 library(dplyr)
@@ -417,5 +421,5 @@ ggplot(stacked_data, aes(x = Year, y = Total_Percentage, fill = Group)) +
   )
 
 ```
-
+From 1990 to 2021, we can see the contribution of top 5 countries to CO2 Emissions increases less than 25% to slightly more than 25%. Noticeably, there is a large decrease from 2010 to 2011. After that, the percentage contribution from the top 5 countries stabilizes. 
 
