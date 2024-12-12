@@ -368,5 +368,54 @@ ggplot(top_5_contributions, aes(x = Year, y = Percentage_Contribution, color = C
 
 ```
 
+```{r}
+library(dplyr)
+library(ggplot2)
+
+# Filter CO2 emissions data
+co2_data <- data_long |>
+  filter(Gas == "CO2", Sector == "Total including LUCF")
+
+# Calculate global total emissions for each year
+global_emissions <- co2_data |>
+  group_by(Year) |>
+  summarise(Total_Emissions = sum(Emissions, na.rm = TRUE))
+
+# Calculate cumulative emissions per country and identify top 5 emitters
+top_5_countries <- co2_data |>
+  group_by(Country) |>
+  summarise(Cumulative_Emissions = sum(Emissions, na.rm = TRUE)) |>
+  arrange(desc(Cumulative_Emissions)) |>
+  slice(2:6) |>
+  pull(Country)
+
+# Separate emissions into top 5 countries and other countries
+stacked_data <- co2_data |>
+  left_join(global_emissions, by = "Year") |>
+  mutate(
+    Group = ifelse(Country %in% top_5_countries, "Top 5 Countries", "Other Countries"),
+    Percentage_Contribution = Emissions / Total_Emissions * 100
+  ) |>
+  group_by(Year, Group) |>
+  summarise(Total_Percentage = sum(Percentage_Contribution, na.rm = TRUE)) |>
+  ungroup()
+
+# Plot the stacked bar chart
+ggplot(stacked_data, aes(x = Year, y = Total_Percentage, fill = Group)) +
+  geom_bar(stat = "identity", position = "stack") +
+  labs(
+    title = "Contribution of Top 5 Countries vs Other Countries to CO2 Emissions (1990–2021)",
+    x = "Year",
+    y = "Percentage Contribution",
+    fill = "Group"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 14, face = "bold"),
+    axis.text = element_text(size = 10),
+    legend.position = "right"
+  )
+
+```
 
 

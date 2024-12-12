@@ -1,13 +1,33 @@
 # Interactive graph
 
-<style>
-  * {
-    font-family: sans-serif;
-  }
-</style> 
-
-<div id="plot">
+<div id="controls">
+  <label for="countrySelect">Select countries:</label>
+  <select id="countrySelect" multiple>
+  </select>
+  <button id="resetButton">Reset</button>
 </div>
+
+<div id="plot"></div>
+
+## Instructions
+
+This interactive graph allows you to explore CO2 emissions data in two key ways:
+
+1. **Hover over the data points**  
+   - Move your mouse over any data point on the chart to view detailed information. This includes the country, the year, the percentage contribution of that country's emissions to the global total, and the total emissions in metric tons for that year.  
+   - This feature helps you examine trends and compare emission data for specific countries over time.
+
+2. **Select multiple countries and analyze their combined contribution**  
+   - Use the dropdown menu to select one or more countries.  
+   - After selecting countries, click on any year on the x-axis to see the total percentage contribution of the selected countries' emissions to the global total for that year.  
+   - The combined percentage will be displayed dynamically, helping you understand the relative impact of multiple countries in a given year.
+
+3. **Reset the selection**  
+   - Click the "Reset" button to clear all selected countries and return to the default view.
+
+> Note: The legend in the top-right corner of the graph identifies the color corresponding to each country for easy reference.
 
 <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 <script src="scripts/myscript.js"></script>
+
+
